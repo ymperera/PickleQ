@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pickleball Queue</title>
+  <style>
+    :root {
+      --primary-color: #4a90e2; /* tennis court blue */
+      --secondary-color: #f9fefe;
+      --accent-color: #e0f7fa; /* light court vibe */
+      --highlight-color: #7ed957; /* pickleball green */
+      --text-color: #333;
+      --card-bg: white;
+      --border-radius: 10px;
+      --modal-bg: rgba(0, 0, 0, 0.5);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--secondary-color);
+      color: var(--text-color);
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 20px 15px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 15px;
+      color: var(--primary-color);
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: center;
+      background-color: var(--accent-color);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .tab.active {
+      background-color: var(--card-bg);
+      font-weight: bold;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .position {
+      text-align: center;
+      margin: 20px 0 10px;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .queue-box {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      border: 1px solid #ccc;
+      padding: 10px;
+      height: 250px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+    }
+
+    .queue-box ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .queue-box li {
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .queue-box li.you {
+      font-weight: bold;
+      color: var(--highlight-color);
+    }
+
+    .queue-box li.crossed {
+      text-decoration: line-through;
+      color: #999;
+    }
+
+    .button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin: 10px auto;
+      font-size: 16px;
+      border: none;
+      border-radius: var(--border-radius);
+      background-color: var(--primary-color);
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+      text-align: center;
+    }
+
+    .button:hover {
+      background-color: #357ab7;
+    }
+
+    .button.secondary {
+      background-color: #ccc;
+      color: #222;
+    }
+
+    .chat-box {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      border: 1px solid #ccc;
+      height: 200px;
+      overflow-y: auto;
+    }
+
+    .chat-msg {
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .chat-msg strong {
+      display: block;
+    }
+
+    .chat-msg.system {
+      font-style: italic;
+      font-size: 0.9em;
+      color: #888;
+    }
+
+    .chat-input {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .chat-input input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: var(--border-radius);
+    }
+
+    .chat-input button {
+      padding: 10px 15px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--modal-bg);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: var(--border-radius);
+      text-align: center;
+      width: 90%;
+      max-width: 320px;
+    }
+
+    .modal-content input {
+      padding: 10px;
+      width: 90%;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+<div class="container" id="mainApp">
+  <h2>Pickleball Queue</h2>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('queue')">Queue</div>
+    <div class="tab" onclick="switchTab('chat')">Chat</div>
+  </div>
+
+  <div id="queueTab" class="section active">
+    <div class="position" id="queuePosition"></div>
+    <div class="queue-box">
+      <ul id="queueList">
+        <li class="crossed">Zoe</li>
+        <li class="crossed">Matt</li>
+        <li class="crossed">Sam</li>
+        <li>1. Alice</li>
+        <li>2. Bob</li>
+        <li>3. Charlie</li>
+        <li>4. Dana</li>
+      </ul>
+    </div>
+    <button class="button" id="joinButton" onclick="showNameModal()">Join Queue</button>
+    <button class="button" onclick="advanceQueue()">Advance Queue</button>
+    <button class="button secondary" onclick="leaveQueue()">Leave Queue</button>
+  </div>
+
+  <div id="chatTab" class="section">
+    <div class="chat-box" id="chatMessages"></div>
+    <div class="chat-input">
+      <input type="text" id="chatInput" placeholder="Type a message...">
+      <button onclick="postMessage()">Send</button>
+    </div>
+  </div>
+</div>
+
+<div id="nameModal" class="modal">
+  <div class="modal-content">
+    <h3>Enter your name</h3>
+    <input type="text" id="userNameInput" placeholder="Your name" />
+    <input type="text" id="phoneInput" placeholder="Phone number (optional)" />
+    <br>
+    <button class="button" onclick="setUserName()">Join</button>
+    <button class="button secondary" onclick="hideModal('nameModal')">Cancel</button>
+  </div>
+</div>
+
+<script>
+  let userName = '';
+  let hasJoined = false;
+  let phoneNumber = '';
+
+  function showNameModal() {
+    document.getElementById('nameModal').style.display = 'flex';
+  }
+
+  function hideModal(id) {
+    document.getElementById(id).style.display = 'none';
+  }
+
+  function setUserName() {
+    const name = document.getElementById('userNameInput').value.trim();
+    const phone = document.getElementById('phoneInput').value.trim();
+    if (!name) return;
+
+    const queueItems = Array.from(document.querySelectorAll('#queueList li'));
+    const isDuplicate = queueItems.some(li => li.textContent.includes(name) || li.classList.contains('you'));
+    if (isDuplicate) {
+      alert("That name is already in the queue.");
+      return;
+    }
+
+    userName = name;
+    phoneNumber = phone;
+    hasJoined = true;
+
+    const position = queueItems.filter(item => !item.classList.contains('crossed')).length + 1;
+    const li = document.createElement('li');
+    li.className = 'you';
+    li.innerHTML = `${position}. <span class='you'>You <span style='font-weight: normal; color: #666'>(${userName})</span></span>`;
+    document.querySelector('#queueList').appendChild(li);
+
+    hideModal('nameModal');
+    updateQueuePosition();
+  }
+
+  function switchTab(tab) {
+    document.getElementById('queueTab').classList.remove('active');
+    document.getElementById('chatTab').classList.remove('active');
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(tab + 'Tab').classList.add('active');
+    document.querySelectorAll('.tab').forEach(t => {
+      if (t.textContent.toLowerCase() === tab) {
+        t.classList.add('active');
+      }
+    });
+  }
+
+  function updateQueuePosition() {
+    const listItems = document.querySelectorAll('#queueList li');
+    let position = 0;
+    let total = 0;
+    listItems.forEach((li) => {
+      if (!li.classList.contains('crossed')) {
+        total++;
+        if (li.classList.contains('you')) {
+          position = total;
+        }
+      }
+    });
+    const msg = position > 0 ? `You are ${ordinal(position)} in line (${position - 1} person${position === 2 ? '' : 's'} ahead of you)` : '';
+    document.getElementById('queuePosition').textContent = msg;
+  }
+
+  function ordinal(n) {
+    return n + (n === 1 ? 'st' : n === 2 ? 'nd' : n === 3 ? 'rd' : 'th');
+  }
+
+  function advanceQueue() {
+    if (confirm("Are you sure you want to advance the queue?")) {
+      const list = document.getElementById('queueList');
+      const items = Array.from(list.querySelectorAll('li'));
+      const activeItems = items.filter(item => !item.classList.contains('crossed'));
+      if (activeItems.length === 0) return;
+
+      const first = activeItems[0];
+      first.classList.add('crossed');
+      first.innerHTML = first.textContent.replace(/^\d+\.\s*/, '');
+
+      activeItems.slice(1).forEach((item, index) => {
+        const baseText = item.textContent.replace(/^\d+\.\s*/, '').replace(/\(.*\)/, '').trim();
+        if (item.classList.contains('you')) {
+          item.innerHTML = `${index + 1}. <span class='you'>You <span style='font-weight: normal; color: #666'>(${userName})</span></span>`;
+        } else {
+          item.innerHTML = `${index + 1}. ${baseText}`;
+        }
+      });
+
+      updateQueuePosition();
+    }
+  }
+
+  function leaveQueue() {
+    const list = document.getElementById('queueList');
+    const items = Array.from(list.querySelectorAll('li'));
+    const activeItems = items.filter(item => !item.classList.contains('crossed'));
+    const youIndex = activeItems.findIndex(item => item.classList.contains('you'));
+    if (youIndex === -1) return;
+
+    activeItems[youIndex].remove();
+    hasJoined = false;
+
+    activeItems.slice(youIndex + 1).forEach((item, i) => {
+      const baseText = item.textContent.replace(/^\d+\.\s*/, '').replace(/\(.*\)/, '').trim();
+      item.innerHTML = `${youIndex + 1 + i}. ${baseText}`;
+    });
+
+    updateQueuePosition();
+    logSystemMessage("Someone has left the queue.");
+  }
+
+  function postMessage() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    if (!hasJoined) {
+      alert("You can't post until you've joined the queue.");
+      return;
+    }
+    
+    if (message && userName) {
+      const chatBox = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = 'chat-msg';
+      div.innerHTML = `<strong>${userName}:</strong> ${message}`;
+      chatBox.appendChild(div);
+      input.value = '';
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  }
+
+  function logSystemMessage(msg) {
+    const chatBox = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'chat-msg system';
+    div.textContent = msg;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  updateQueuePosition();
+</script>
+</body>
+</html>
