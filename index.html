@@ -148,8 +148,6 @@
       max-width: 100%;
     }
 
-
-
     .chat-input {
       display: flex;
       gap: 0;
@@ -234,6 +232,20 @@
       color: var(--text-light);
       margin-top: 8px;
     }
+
+    /* Contact button styled as a link */
+    .contact-link {
+      background: none;
+      border: none;
+      color: var(--primary-color);
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 0.9em;
+    }
+    .contact-container {
+      text-align: center;
+      margin: 20px auto;
+    }
   </style>
 </head>
 <body>
@@ -271,14 +283,22 @@
     </div>
   </div>
 
+  <!-- "Contact Us" link-like button at the bottom -->
+  <div class="contact-container">
+    <!-- Using mailto to open the user's email client -->
+    <button class="contact-link" onclick="window.location.href='mailto:yukaperera@gmail.com'">
+      Contact Us
+    </button>
+  </div>
+
   <!-- Join Modal -->
   <div id="nameModal" class="modal">
     <div class="modal-content">
       <h3>Join the Queue</h3>
       <label for="userNameInput">Your Name *</label>
       <input type="text" id="userNameInput" placeholder="e.g. Alex" required />
-      <label for="phoneInput">Phone (optional)</label>
-      <input type="text" id="phoneInput" placeholder="e.g. 555-123-4567" />
+      <!-- <label for="phoneInput">Phone (optional)</label>
+      <input type="text" id="phoneInput" placeholder="e.g. 555-123-4567" /> -->
       <button class="button" onclick="setUserName()">Join Queue</button>
       <button class="button secondary" onclick="hideModal('nameModal')">Cancel</button>
     </div>

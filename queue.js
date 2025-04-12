@@ -30,7 +30,7 @@ const positionEl = document.getElementById("queuePosition");
 const chatMessagesEl = document.getElementById("chatMessages");
 const chatInputEl = document.getElementById("chatInput");
 const userNameInputEl = document.getElementById("userNameInput");
-const phoneInputEl = document.getElementById("phoneInput");
+// const phoneInputEl = document.getElementById("phoneInput");
 const nameModalEl = document.getElementById("nameModal");
 const joinButtonEl = document.getElementById("joinButton");
 const advanceControlsGroupEl = document.getElementById("advanceControlsGroup");
@@ -84,7 +84,7 @@ function hideModal(id) {
 // Core logic
 function setUserName() {
   const name = userNameInputEl.value.trim();
-  const phone = phoneInputEl.value.trim();
+//   const phone = phoneInputEl.value.trim();
 
   if (!name) return alert("Please enter your name");
 
@@ -101,7 +101,7 @@ function setUserName() {
 
   updateDoc(queueRef, {
     activePlayers: arrayUnion({
-      name, phone, uid, joinedAt: Timestamp.now()
+      name, uid, joinedAt: Timestamp.now()
     })
   });
   postSystemMessage(`${userName} joined the queue`);
@@ -180,7 +180,6 @@ function postMessage() {
           active.push({
             name,
             uid,
-            phone: old.phone || "",
             joinedAt: Timestamp.now()
           });
         }
