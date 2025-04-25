@@ -430,7 +430,7 @@ async function advanceQueue() {
   
     // Set confirmation message
     if (action === 'advance') {
-      text.textContent = "Are you sure you want to advance the queue?";
+      text.textContent = "Are you sure you want to advance the line?";
     } else if (action === 'undo') {
       text.textContent = "Undo the last advance?";
     }
