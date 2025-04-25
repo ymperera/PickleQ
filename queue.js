@@ -203,7 +203,7 @@ function renderQueue(active, past) {
 
   const uid = localStorage.getItem("uid");
   // only show last 5
-  const recentPast = past.slice(-5);
+  const recentPast = past.slice(-3);
   const inActive   = active.some(p => p.uid === uid);
   const inPast     = recentPast.some(p => p.uid === uid);
 
@@ -377,7 +377,7 @@ async function advanceQueue() {
         const actor    = localStorage.getItem("userName") || "Someone";
         const nextName = nextPlayer ? nextPlayer.name : "no one";
         postSystemMessage(
-          `${actor} advanced the queue, ${nextName} is next up`
+          `${actor} clicked Next, ${nextName} is next up`
         );
         undoButtonEl.disabled = false;
       }
